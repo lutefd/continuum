@@ -24,12 +24,16 @@ struct TodayView: View {
                     ContentUnavailableView("No activities yet", systemImage: "square.grid.2x2", description: Text("Create an activity to start building your continuum."))
                 } else {
                     ForEach(activities) { activity in
-                        ActivityRow(
-                            activity: activity,
-                            isLoggedToday: isLoggedToday(activity),
-                            streakSummary: summaryProvider.summary(for: activity, logs: logs),
-                            logActivity: logActivity
-                        )
+                        NavigationLink {
+                            ActivityDetailView(activity: activity, logs: logs, logActivity: logActivity)
+                        } label: {
+                            ActivityRow(
+                                activity: activity,
+                                isLoggedToday: isLoggedToday(activity),
+                                streakSummary: summaryProvider.summary(for: activity, logs: logs),
+                                logActivity: logActivity
+                            )
+                        }
                     }
                 }
             }

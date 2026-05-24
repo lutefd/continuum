@@ -14,12 +14,16 @@ struct ActivitiesView: View {
                 if !categoryActivities.isEmpty {
                     Section(category.displayName) {
                         ForEach(categoryActivities) { activity in
-                            ActivityRow(
-                                activity: activity,
-                                isLoggedToday: isLoggedToday(activity),
-                                streakSummary: summaryProvider.summary(for: activity, logs: logs),
-                                logActivity: logActivity
-                            )
+                            NavigationLink {
+                                ActivityDetailView(activity: activity, logs: logs, logActivity: logActivity)
+                            } label: {
+                                ActivityRow(
+                                    activity: activity,
+                                    isLoggedToday: isLoggedToday(activity),
+                                    streakSummary: summaryProvider.summary(for: activity, logs: logs),
+                                    logActivity: logActivity
+                                )
+                            }
                         }
                     }
                 }
