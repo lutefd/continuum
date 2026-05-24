@@ -17,11 +17,13 @@ struct HealthKitImportCoordinator {
 
         let startDate = Calendar.current.date(byAdding: .day, value: -90, to: .now) ?? .now
         let importedLogs = try await service.fetchWorkouts(since: startDate).compactMap(mapper.map)
-        let existingExternalIds = Set(logs.compactMap(\.externalSourceId))
-        var activitiesByName = Dictionary(uniqueKeysWithValues: activities.map { ($0.name, $0) })
+        var knownExternalIds = Set(logs.compactMap(\.externalSourceId))
+        var activitiesByName = activities.reduce(into: [String: Activity]()) { result, activity in
+            result[activity.name, default: activity] = activity
+        }
         var insertedCount = 0
 
-        for importedLog in importedLogs where !existingExternalIds.contains(importedLog.externalSourceId) {
+        for importedLog in importedLogs where knownExternalIds.insert(importedLog.externalSourceId).inserted {
             let activity = activitiesByName[importedLog.activityName] ?? createActivity(from: importedLog, modelContext: modelContext)
             activitiesByName[activity.name] = activity
             activity.logs.append(makeActivityLog(from: importedLog, activityId: activity.id))

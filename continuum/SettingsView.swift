@@ -45,7 +45,7 @@ struct SettingsView: View {
                 logs: logs,
                 modelContext: modelContext
             )
-            healthImportStatus = .imported(insertedCount)
+            healthImportStatus = insertedCount == 0 ? .upToDate : .imported(insertedCount)
         } catch {
             healthImportStatus = .failed(error.localizedDescription)
         }
