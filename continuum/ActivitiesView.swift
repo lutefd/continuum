@@ -5,6 +5,8 @@ struct ActivitiesView: View {
     let logs: [ActivityLog]
     let logActivity: (Activity) -> Void
 
+    private let summaryProvider = ActivityStreakSummaryProvider()
+
     var body: some View {
         List {
             ForEach(ActivityCategory.allCases) { category in
@@ -12,7 +14,12 @@ struct ActivitiesView: View {
                 if !categoryActivities.isEmpty {
                     Section(category.displayName) {
                         ForEach(categoryActivities) { activity in
-                            ActivityRow(activity: activity, isLoggedToday: isLoggedToday(activity), logActivity: logActivity)
+                            ActivityRow(
+                                activity: activity,
+                                isLoggedToday: isLoggedToday(activity),
+                                streakSummary: summaryProvider.summary(for: activity, logs: logs),
+                                logActivity: logActivity
+                            )
                         }
                     }
                 }

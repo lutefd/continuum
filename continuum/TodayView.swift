@@ -5,6 +5,8 @@ struct TodayView: View {
     let logs: [ActivityLog]
     let logActivity: (Activity) -> Void
 
+    private let summaryProvider = ActivityStreakSummaryProvider()
+
     var body: some View {
         List {
             Section {
@@ -22,7 +24,12 @@ struct TodayView: View {
                     ContentUnavailableView("No activities yet", systemImage: "square.grid.2x2", description: Text("Create an activity to start building your continuum."))
                 } else {
                     ForEach(activities) { activity in
-                        ActivityRow(activity: activity, isLoggedToday: isLoggedToday(activity), logActivity: logActivity)
+                        ActivityRow(
+                            activity: activity,
+                            isLoggedToday: isLoggedToday(activity),
+                            streakSummary: summaryProvider.summary(for: activity, logs: logs),
+                            logActivity: logActivity
+                        )
                     }
                 }
             }
