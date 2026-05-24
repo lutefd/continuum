@@ -13,6 +13,9 @@ struct ContentView: View {
     @Query(sort: \Activity.name) private var activities: [Activity]
     @Query(sort: \ActivityLog.startedAt, order: .reverse) private var logs: [ActivityLog]
     @State private var isPresentingNewActivity = false
+    @State private var didRunAutomaticHealthImport = false
+
+    private let automaticHealthImportTask = AutomaticHealthImportTask()
 
     var body: some View {
         TabView {
@@ -44,6 +47,7 @@ struct ContentView: View {
             .tabItem { Label("Settings", systemImage: "gearshape") }
         }
         .task { seedDefaultActivitiesIfNeeded() }
+        .task { await runAutomaticHealthImportIfNeeded() }
         .sheet(isPresented: $isPresentingNewActivity) {
             NewActivityView()
         }
@@ -68,6 +72,12 @@ struct ContentView: View {
             activity.streakRule = StreakRule(activityId: activity.id, type: .dailyCompletion, period: .day)
             modelContext.insert(activity)
         }
+    }
+
+    private func runAutomaticHealthImportIfNeeded() async {
+        guard !didRunAutomaticHealthImport else { return }
+        didRunAutomaticHealthImport = true
+        await automaticHealthImportTask.runIfAvailable(activities: activeActivities, logs: logs, modelContext: modelContext)
     }
 }
 

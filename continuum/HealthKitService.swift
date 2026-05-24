@@ -46,11 +46,28 @@ struct HealthKitService {
             healthStore.execute(query)
         }
     }
+
+    func enableWorkoutBackgroundDelivery() async throws {
+        guard isHealthDataAvailable else { throw HealthKitServiceError.unavailable }
+
+        try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
+            healthStore.enableBackgroundDelivery(for: .workoutType(), frequency: .hourly) { success, error in
+                if let error {
+                    continuation.resume(throwing: error)
+                } else if success {
+                    continuation.resume()
+                } else {
+                    continuation.resume(throwing: HealthKitServiceError.backgroundDeliveryUnavailable)
+                }
+            }
+        }
+    }
 }
 
 enum HealthKitServiceError: LocalizedError {
     case unavailable
     case authorizationDenied
+    case backgroundDeliveryUnavailable
 
     var errorDescription: String? {
         switch self {
@@ -58,6 +75,8 @@ enum HealthKitServiceError: LocalizedError {
             return "Health data is not available on this device."
         case .authorizationDenied:
             return "HealthKit permission was not granted."
+        case .backgroundDeliveryUnavailable:
+            return "HealthKit background delivery could not be enabled."
         }
     }
 }

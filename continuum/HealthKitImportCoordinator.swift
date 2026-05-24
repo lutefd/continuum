@@ -13,6 +13,7 @@ struct HealthKitImportCoordinator {
         guard service.isHealthDataAvailable else { throw HealthKitServiceError.unavailable }
 
         try await service.requestWorkoutReadAuthorization()
+        try? await service.enableWorkoutBackgroundDelivery()
 
         let startDate = Calendar.current.date(byAdding: .day, value: -90, to: .now) ?? .now
         let importedLogs = try await service.fetchWorkouts(since: startDate).compactMap(mapper.map)
