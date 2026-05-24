@@ -38,7 +38,7 @@ struct ContentView: View {
             .tabItem { Label("Activities", systemImage: "list.bullet") }
 
             NavigationStack {
-                SettingsView(activityCount: activeActivities.count, logCount: logs.count)
+                SettingsView(activities: activeActivities, logs: logs)
                     .navigationTitle("Settings")
             }
             .tabItem { Label("Settings", systemImage: "gearshape") }
